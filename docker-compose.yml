@@ -1,0 +1,31 @@
+# docker compose para levantar el proyecto
+version: '3.7'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pg_stat_statements
+    ports:
+      - 5433:5432
+    networks:
+      - dev-env
+  pg_stat_statements:
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src/app:/app
+      - ./src/config/:/opt/pg_stat_statements/config
+    ports:
+      - 5001:5000
+    networks:
+      - dev-env
+
+networks:
+  dev-env:
+    driver: bridge
