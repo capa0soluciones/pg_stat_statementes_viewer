@@ -1,5 +1,5 @@
-# Web view to show and reset pg_stats_statements
-
+##  Web view to show and reset pg_stats_statements
+***Use only for Development environmets***
 ####  You have to install  pg_stat_statements extension on your database
 
 ```
