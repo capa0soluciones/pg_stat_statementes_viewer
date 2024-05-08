@@ -14,10 +14,8 @@ restart:
 bash:
 	docker exec -it pg_stat_statements_dev bash
 
-
 push:
         docker push capa0soluciones/pg_stats_statements_viewer:latest
 
 pull:
-
         docker pull capa0soluciones/pg_stats_statements_viewer:latest
