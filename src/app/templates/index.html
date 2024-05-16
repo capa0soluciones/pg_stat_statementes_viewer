@@ -1,115 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" >
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Postgres Queries from PG_STAT_STATEMENTS</title>
     <link rel="icon" href="{{ url_for('static', filename='images/postgres.ico') }}" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.dataTables.css') }}" />
+<!-- 
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.css" />
+--> 
+    <link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-2.0.7/b-3.0.2/b-colvis-3.0.2/b-html5-3.0.2/b-print-3.0.2/cr-2.0.2/fh-4.0.1/r-3.0.2/sc-2.4.2/sb-1.7.1/sp-2.3.1/datatables.min.css" rel="stylesheet">
+
 </head>
 <body>
-    <h1>Postgres Queries from PG_STAT_STATEMENTS</h1>
-    <form method="post">
-        <label for="user-filter">Filter by postgres User:</label>
-        <select id="user-filter">
-            <option value="">All users</option>
-            {% for user in users %}
-            <option value="{{ user }}">{{ user }}</option>
-            {% endfor %}
-        </select>
-    
-        <label for="database-filter">Filter by DataBase:</label>
-        <select id="database-filter">
-            <option value="">All databases</option>
-            {% for database in databases %}
-            <option value="{{ database }}">{{ database }}</option>
-            {% endfor %}
-        </select>    
-        <input type="submit" name="query1" value="Refresh">
-        <input type="submit" name="query2" value="Reset queries">
-    </form>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Postgres Queries</a>
+    </nav>
+    <div class="container-fluid"; align="center">
+        <form id="filter-form">
+            <div class="form-row">
+                <div class="container-fluid"; align="center">
+                    <label for="user-filter">Filter by Postgres User:</label>
+                    <select id="user-filter" class="form-control">
+                        <option value="">All users</option>
+                        {% for user in users %}
+                        <option value="{{ user }}">{{ user }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="container-fluid"; align="center">
+                    <label for="database-filter">Filter by Database:</label>
+                    <select id="database-filter" class="form-control" >
+                        <option value="">All databases</option>
+                        {% for database in databases %}
+                        <option value="{{ database }}">{{ database }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </form>
+        <div class="container-fluid"; align="center">
+            <button type="button" id="refresh-btn" class="btn btn-primary">Refresh</button>
+            <button type="button" id="reset-btn" class="btn btn-secondary">Reset Queries</button>
+        </div>
+        </div>
+        <div class="container-fluid">
+        <table id="queriesTable" class="table">
+            <thead>
+                <tr>
+                    <th>Query ID</th>
+                    <th>Query</th>
+                    <th>Calls</th>
+                    <th>Total Exec Time</th>
+                    <th>Avg Exec Time</th>
+                    <th>Database</th>
+                    <th>User</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data from AJAX -->
+            </tbody>
+        </table>
+    </div>
 
-    {% if data %}
-    <table id="queriesTable" class="display">
-        <thead>
-            <tr>
-                <th>QueryID</th>
-                <th>Query</th>
-                <th>Executions</th>
-                <th>Total Time (ms)</th>
-                <th>Avg time (ms)</th>
-                <th>Database Name</th>
-                <th>User</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in data %}
-            <tr class="query-row">
-                <td>{{ row[0] }}</td>
-                <td>
-                    <details>
-                        <summary>
-                            <span class="short-query">
-                                {% if row[1]|length > 155 %}
-                                {{ row[1][:155] }}...
-                                {% else %}
-                                {{ row[1] }}
-                                {% endif %}
-                            </span>
-                        </summary>
-                        <pre style="font-family: monospace; white-space: pre-wrap; word-wrap: break-word;">{{ row[1] }}</pre>
-                    </details>
-                </td>
-                <td>{{ row[2]|round(3) }}</td>
-                <td>{{ row[3]|round(3) }}</td>
-                <td>{{ row[4]|round(3) }}</td>
-                <td>{{ row[5] }}</td>
-                <td>{{ row[6] }}</td>                                
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
+    <!-- Scripts for Bootstrap & jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+ 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-2.0.7/b-3.0.2/b-colvis-3.0.2/b-html5-3.0.2/b-print-3.0.2/cr-2.0.2/fh-4.0.1/r-3.0.2/sc-2.4.2/sb-1.7.1/sp-2.3.1/datatables.min.js"></script>
 
-    <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/dataTables.js') }}"></script>
-    <script>
-// Aplicar modo oscuro a la tabla con libreía DataTables
-            $(document).ready(function() {
-                var table = $('#queriesTable').DataTable({
-                    columnDefs: [
-                        { type: 'num', targets: [2, 3, 4] } // Asegúrate de que las columnas con números se ordenen correctamente
-                    ],
-                    order: [[4, 'desc'] // Ordenar por número de ejecuciones
-                    ],
-                    // hacer responsive con porcentajes de ancho de columna para evitar scroll horizontal
-                    "autoWidth": false,
-                    "columns": [
-                        { "width": "10%" },
-                        { "width": "50%"},
-                        { "width": "8%"},
-                        { "width": "8%"},
-                        { "width": "8%"},
-                        { "width": "8%"},
-                        { "width": "8%"}
-                    ]
-                });
-
-                $('#user-filter').on('change', function() {
-                    var user = $.fn.dataTable.util.escapeRegex(this.value);
-                    table.column(6).search(user ? '^' + user + '$' : '', true, false).draw();
-                });
-
-                $('#database-filter').on('change', function() {
-                    var database = $.fn.dataTable.util.escapeRegex(this.value);
-                    table.column(5).search(database ? '^' + database + '$' : '', true, false).draw();
-                });
-
-                $('.query-row').click(function(e) {
-                    var $this = $(this);
-                    var fullQueryRow = $this.next('.full-query-row');
-                    fullQueryRow.toggle();
-                });
-            });
-    </script>
 </body>
 </html>
