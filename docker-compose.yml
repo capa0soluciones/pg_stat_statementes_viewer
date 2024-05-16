@@ -3,13 +3,18 @@ version: '3.7'
 
 services:
   db:
+    container_name: pg_stat_statements_db
     image: postgres:13
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: pg_stat_statements
     ports:
       - 5433:5432
+    volumes:
+      - ./src/config/postgresql.conf:/etc/postgresql/postgresql.conf
+      - db-data:/var/lib/postgresql/data
     networks:
       - dev-env
   pg_stat_statements:
@@ -25,6 +30,9 @@ services:
       - 5001:5000
     networks:
       - dev-env
+
+volumes:
+  db-data:
 
 networks:
   dev-env:

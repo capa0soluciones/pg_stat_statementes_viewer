@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import psycopg2
 import configparser
 
@@ -35,7 +35,17 @@ if 'database' in config:
     except Exception as e:
         print(e)
 else:
-    print("La sección [database] no existe en el archivo config.ini")
+    print("ERROR - La sección [database] no existe en el archivo config.ini")
+
+if 'query-config' in config:
+    # Obtener la configuración de la base de datos
+    query_config = config['query-config']
+    query_config_limit = query_config.get('limit')
+    query_config_filter = query_config.get('filter')
+else:
+    query_config_limit = 100000000000000000000
+    query_config_filter = "pss.mean_exec_time"
+    print("La sección [query-config] no existe en el archivo config.ini, se usarán valores por defecto.")
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -48,14 +58,14 @@ def index():
     cur.close()
 
     if request.method == 'POST':
-        if 'query1' in request.form:
+        if 'queries' in request.form:
             cur = conn.cursor()
-            cur.execute("""SELECT
+            cur.execute(f"""SELECT
                                 pss.queryid,
                                 pss.query,
                                 pss.calls AS cantidad_ejecuciones,
                                 pss.total_exec_time AS tiempo_total,
-                                (pss.total_exec_time / pss.calls) AS promedio_tiempo_por_ejecucion,
+                                pss.mean_exec_time,
                                 pdb.datname AS databasename,
                                 pua.rolname AS username
                             FROM
@@ -63,17 +73,19 @@ def index():
                             JOIN
                                 pg_catalog.pg_database pdb ON pss.dbid = pdb.oid
                             JOIN
-                                pg_catalog.pg_authid pua ON pss.userid = pua.oid;""")
+                                pg_catalog.pg_authid pua ON pss.userid = pua.oid
+                            ORDER by {query_config_filter} DESC
+                            LIMIT {query_config_limit};""")
             data = cur.fetchall()
             cur.close()
-            return render_template('index.html', data=data, users=users, databases=databases)
-        elif 'query2' in request.form:
+            return jsonify(data)
+        elif 'reset' in request.form:
             cur = conn.cursor()
             cur.execute("SELECT pg_stat_statements_reset();")
             conn.commit()
             cur.close()
-            return render_template('index.html', users=users, databases=databases)
+            return '', 204  # No Content
     return render_template('index.html', users=users, databases=databases)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0')
