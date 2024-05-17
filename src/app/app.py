@@ -42,8 +42,9 @@ if 'query-config' in config:
     query_config = config['query-config']
     query_config_limit = query_config.get('limit')
     query_config_filter = query_config.get('filter')
+    limit = f"LIMIT {query_config_limit}"
 else:
-    query_config_limit = 100000000000000000000
+    limit = ""
     query_config_filter = "pss.mean_exec_time"
     print("La sección [query-config] no existe en el archivo config.ini, se usarán valores por defecto.")
 
@@ -74,8 +75,8 @@ def index():
                                 pg_catalog.pg_database pdb ON pss.dbid = pdb.oid
                             JOIN
                                 pg_catalog.pg_authid pua ON pss.userid = pua.oid
-                            ORDER by {query_config_filter} DESC
-                            LIMIT {query_config_limit};""")
+                            ORDER by {query_config_filter} DESC 
+                            {limit};""")
             data = cur.fetchall()
             cur.close()
             return jsonify(data)

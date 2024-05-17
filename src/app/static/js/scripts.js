@@ -39,6 +39,7 @@ $(document).ready(function() {
 
     // Manejar clic en botón de Refresh
     $('#refresh-btn').on('click', function() {
+        $('#loadingModal').modal('show');
         $.ajax({
             url: '/',
             type: 'POST',
@@ -71,9 +72,11 @@ $(document).ready(function() {
                     '</tr>';
                     table.row.add($(rowHtml)).draw();
                 }
+                $('#loadingModal').modal('hide');
             },
             error: function(xhr, status, error) {
                 console.error("Error:", error);
+                $('#loadingModal').modal('hide');
             }
         });
     });
