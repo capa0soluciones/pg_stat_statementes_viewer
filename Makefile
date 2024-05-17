@@ -1,4 +1,5 @@
 build:
+
 	docker build -t docker.io/capa0soluciones/pg_stats_statements_viewer:latest .
 
 start:
@@ -14,6 +15,13 @@ restart:
 bash:
 	docker exec -it pg_stat_statements_dev bash
 
+
+push:
+	docker push capa0soluciones/pg_stats_statements_viewer:latest
+
+pull:
+	docker pull capa0soluciones/pg_stats_statements_viewer:latest
+
 psql:
 	docker exec -it pg_stat_statements_db psql -U postgres
 
@@ -25,3 +33,4 @@ push: docker-login
 
 docker-login:
 	docker login
+
